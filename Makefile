@@ -2,7 +2,7 @@ CC = gcc
 AS = nasm
 LD = ld
 
-CFLAGS = -m32 -ffreestanding -fno-builtin -nostdlib -O0 -Wall -Wextra -Isrc
+CFLAGS = -m32 -ffreestanding -fno-builtin -nostdlib -O0 -Wall -Wextra -I.
 ASFLAGS = -f elf32
 LDFLAGS = -m elf_i386 -T linker.ld -nostdlib
 
@@ -12,10 +12,10 @@ OBJS = boot.o kernel.o vga.o ps2.o heap.o fs.o speaker.o c_compiler.o cu_runner.
 
 all: ibrahim_os.iso
 
-boot.o: src/boot.asm
+boot.o: boot.asm
 	$(AS) $(ASFLAGS) $< -o $@
 
-%.o: src/%.c src/os.h
+%.o: %.c os.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 ibrahim_os.bin: $(OBJS) linker.ld
