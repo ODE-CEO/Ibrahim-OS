@@ -1,0 +1,27 @@
+## Ibrahim-OS Sanal Disk Oluşturma ve Çalıştırma Rehberi
+
+Projeyi `make` komutu ile derledikten sonra, sanal bir disk oluşturup işletim sistemini bu disk üzerinden çalıştırmak için aşağıdaki adımları takip edebilirsin:
+
+### 1. Projeyi Derleme
+Öncelikle kaynak kodları derleyip `ibrahim_os.iso` imajını oluştur:
+```bash
+make
+```
+
+### 2. Sanal Disk Oluşturma ve İlk Kurulum (CD-ROM ile Başlatma)
+16 MB boyutunda ham (`raw`) bir disk imajı oluşturmak ve sistemi kurulum için CD-ROM'dan başlatmak için şu komutları çalıştır:
+```bash
+[ -f disk.img ] || qemu-img create -f raw disk.img 16M
+qemu-system-i386 -cdrom ibrahim_os.iso -drive format=raw,file=disk.img -boot d -m 256 -vga std -audiodev id=pa,driver=pa -machine pcspk-audiodev=pa || \
+qemu-system-i386 -cdrom ibrahim_os.iso -drive format=raw,file=disk.img -boot d -m 128 -vga std -audiodev id=sdl,driver=sdl -machine pcspk-audiodev=sdl || \
+qemu-system-i386 -cdrom ibrahim_os.iso -drive format=raw,file=disk.img -boot d -m 128 -vga std
+```
+*(Sistem açıldıktan sonra işletim sisteminin içinden diske kurulum/yazma işlemini gerçekleştirebilirsin.)*
+
+### 3. Doğrudan Sanal Diskten Çalıştırma
+Kurulum tamamlandıktan sonra CD-ROM'a ihtiyaç duymadan, sistemi doğrudan oluşturduğun `disk.img` üzerinden başlatmak için bu komutu kullan:
+```bash
+qemu-system-i386 -drive format=raw,file=disk.img -m 256 -vga std -audiodev id=pa,driver=pa -machine pcspk-audiodev=pa || \
+qemu-system-i386 -drive format=raw,file=disk.img -m 128 -vga std -audiodev id=sdl,driver=sdl -machine pcspk-audiodev=sdl || \
+qemu-system-i386 -drive format=raw,file=disk.img -m 128 -vga std
+```
