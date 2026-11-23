@@ -2,20 +2,22 @@ CC = gcc
 AS = nasm
 LD = ld
 
-CFLAGS = -m32 -ffreestanding -fno-builtin -nostdlib -O0 -Wall -Wextra -I.
+CFLAGS = -m32 -ffreestanding -fno-builtin -nostdlib -O0 -Wall -Wextra -Isrc
 ASFLAGS = -f elf32
 LDFLAGS = -m elf_i386 -T linker.ld -nostdlib
 
-OBJS = boot.o kernel.o vga.o ps2.o heap.o fs.o speaker.o c_compiler.o cu_runner.o gui.o
+OBJS = boot.o kernel.o vga.o ps2.o heap.o fs.o ata.o ibfs_disk.o speaker.o c_compiler.o cu_runner.o gui.o
 
-.PHONY: all run clean
+QEMU_DISK ?= ibrahimfs-test.img
+
+.PHONY: all run test-disk run-disk clean
 
 all: ibrahim_os.iso
 
-boot.o: boot.asm
+boot.o: src/boot.asm
 	$(AS) $(ASFLAGS) $< -o $@
 
-%.o: %.c os.h
+%.o: src/%.c src/os.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 ibrahim_os.bin: $(OBJS) linker.ld
@@ -36,6 +38,12 @@ ibrahim_os.iso: ibrahim_os.bin
 
 run: ibrahim_os.iso
 	qemu-system-i386 -cdrom ibrahim_os.iso -m 256 -vga std -audiodev id=pa,driver=pa -machine pcspk-audiodev=pa || qemu-system-i386 -cdrom ibrahim_os.iso -m 128 -vga std -audiodev id=sdl,driver=sdl -machine pcspk-audiodev=sdl || qemu-system-i386 -cdrom ibrahim_os.iso -m 128 -vga std
+
+test-disk:
+	qemu-img create -f raw $(QEMU_DISK) 16M
+
+run-disk: ibrahim_os.iso
+	qemu-system-i386 -cdrom ibrahim_os.iso -drive file=$(QEMU_DISK),format=raw,if=ide,index=0 -m 256 -vga std
 
 clean:
 	rm -rf $(OBJS) ibrahim_os.bin ibrahim_os.iso isodir
