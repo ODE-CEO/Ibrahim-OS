@@ -16,3 +16,4 @@ Ibrahim OS Gelişmiş Ayarlar Eklendi
 Disk Biçimlendirme Eklendi (Ibrahimosfs 512 Bayt)
 Güvenli Mod Eklendi
 Log Değiştirme Eklendi
+Kullanım Kılavuzu Eklendi
